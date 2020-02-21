@@ -100,11 +100,10 @@ public final class KeyValueSources {
   /**
    * Creates a new source using a zip file that originated from a character or byte sink in the
    * Python module vistautils.key_value, using default parameters. Maps each entry in the zip file
-   * to a unique key that is specified by a file in the zip named "__keys". (see
-   * https://github.com/isi-vista/vistautils/blob/master/vistautils/key_value.py#L95). The caller
-   * must ensure that the zip file is not closed or modified, otherwise all behavior is undefined.
-   * All files listed by the "__keys" file will be used; there is currently no way to exclude
-   * specific files.
+   * to a unique key that is specified by a file in the zip named "__keys". (see `key_value` module
+   * under https://github.com/isi-vista/vistautils). The caller must ensure that the zip file is not
+   * closed or modified, otherwise all behavior is undefined. All files listed by the "__keys" file
+   * will be used; there is currently no way to exclude specific files.
    *
    * @param zipFile the zip file, originating from a vistautils character or byte sink, to use as a
    *     source
