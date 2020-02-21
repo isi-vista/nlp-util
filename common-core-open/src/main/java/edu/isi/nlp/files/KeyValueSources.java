@@ -3,7 +3,9 @@ package edu.isi.nlp.files;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Function;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.google.common.io.ByteSource;
 import edu.isi.nlp.symbols.Symbol;
 import edu.isi.nlp.symbols.SymbolUtils;
@@ -11,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -94,25 +97,36 @@ public final class KeyValueSources {
     return new ZipKeyValueSource(zipFile, ret.build());
   }
 
+  /**
+   * Creates a new source using a zip file that originated from a character or byte sink in the
+   * Python module vistautils.key_value, using default parameters. Maps each entry in the zip file
+   * to a unique key that is specified by a file in the zip named "__keys". (see
+   * https://github.com/isi-vista/vistautils/blob/master/vistautils/key_value.py#L95). The caller
+   * must ensure that the zip file is not closed or modified, otherwise all behavior is undefined.
+   * All files listed by the "__keys" file will be used; there is currently no way to exclude
+   * specific files.
+   *
+   * @param zipFile the zip file, originating from a vistautils character or byte sink, to use as a
+   *     source
+   * @return a new key-value source backed by the specified zip file
+   */
   @Nonnull
   public static ImmutableKeyValueSource<Symbol, ByteSource> fromVistaUtilsZipKeyValueSource(
-      final ZipFile zipFile) {
-    // read "__keys" file
-    ZipEntry keysEntry = zipFile.getEntry(("__keys"));
-    String keysString = null;
+      final ZipFile zipFile) throws IOException {
+    ZipEntry keysEntry;
     try {
-      keysString = ZipFiles.entryAsString(zipFile, keysEntry, StandardCharsets.US_ASCII);
-    } catch (IOException e) {
-      e.printStackTrace();
+      // "__keys" is the default name of the file containing the names of the other files in this
+      // zip.
+      keysEntry = checkNotNull(zipFile.getEntry(("__keys")));
+    } catch (NullPointerException e) {
+      throw new IOException("Required \"__keys\" file not found");
     }
-    String[] keysArray = keysString.split("\n");
 
-    // explicitly construct the second argument to the ZipKeyValueSource constructor
-    final ImmutableMap.Builder<Symbol, String> keyMapBuilder = ImmutableMap.builder();
-    for (int i = 0; i < keysArray.length; i++) {
-      String key = keysArray[i];
-      keyMapBuilder.put(Symbol.from(key), key);
-    }
-    return new ZipKeyValueSource(zipFile, keyMapBuilder.build());
+    String keysString = ZipFiles.entryAsString(zipFile, keysEntry, StandardCharsets.US_ASCII);
+    List<String> keys = Splitter.on("\n").splitToList(keysString);
+    ImmutableMap<Symbol, String> keyToZipEntryName =
+        Maps.uniqueIndex(keys, key -> Symbol.from(key));
+
+    return new ZipKeyValueSource(zipFile, keyToZipEntryName);
   }
 }

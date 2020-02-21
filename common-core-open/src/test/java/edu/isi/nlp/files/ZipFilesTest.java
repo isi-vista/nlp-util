@@ -29,12 +29,17 @@ public class ZipFilesTest {
   @Rule public TemporaryFolder folder = new TemporaryFolder();
   private ZipFile zipFile;
   private ZipEntry entry;
+  private ZipFile vistaUtilsZipFile;
 
   @Before
   public void setUp() throws IOException {
     zipFile =
         new ZipFile(Resources.getResource(ZipFilesTest.class, "test_zip_source.zip").getFile());
     entry = zipFile.getEntry("docs/2016-09-20-01.txt");
+
+    vistaUtilsZipFile =
+        new ZipFile(
+            Resources.getResource(ZipFilesTest.class, "test_vistautils_zip_source.zip").getFile());
   }
 
   @Test
@@ -62,6 +67,14 @@ public class ZipFilesTest {
     final ImmutableKeyValueSource<Symbol, ByteSource> source =
         KeyValueSources.fromZip(zipFile, docIdExtractor);
     assertEquals(ImmutableSet.of(Symbol.from("2016-09-20-01")), source.keySet());
+  }
+
+  @Test
+  public void testVistaUtilsKeyValueSource() throws IOException {
+    final ImmutableKeyValueSource<Symbol, ByteSource> source =
+        KeyValueSources.fromVistaUtilsZipKeyValueSource(vistaUtilsZipFile);
+
+    assertEquals(ImmutableSet.of(Symbol.from("A"), Symbol.from("B")), source.keySet());
   }
 
   @Test
