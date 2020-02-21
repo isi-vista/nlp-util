@@ -12,6 +12,7 @@ import com.google.common.io.Resources;
 import edu.isi.nlp.symbols.Symbol;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.annotation.Nonnull;
@@ -75,6 +76,14 @@ public class ZipFilesTest {
         KeyValueSources.fromVistaUtilsZipKeyValueSource(vistaUtilsZipFile);
 
     assertEquals(ImmutableSet.of(Symbol.from("A"), Symbol.from("B")), source.keySet());
+
+    ByteSource entryA = source.getRequired(Symbol.from("A"));
+    String valueA = entryA.asCharSource(StandardCharsets.US_ASCII).read();
+    assertEquals(valueA, "this is value A");
+
+    ByteSource entryB = source.getRequired(Symbol.from("B"));
+    String valueB = entryB.asCharSource(StandardCharsets.US_ASCII).read();
+    assertEquals(valueB, "this is value B");
   }
 
   @Test
