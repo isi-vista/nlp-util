@@ -113,7 +113,7 @@ public final class KeyValueSources {
   public static ImmutableKeyValueSource<Symbol, ByteSource> fromVistaUtilsZipKeyValueSource(
       final ZipFile zipFile) throws IOException {
     // "__keys" is the default name of the file containing the names of the other files in this zip.
-    ZipEntry keysEntry = zipFile.getEntry(("__keys"));
+    ZipEntry keysEntry = zipFile.getEntry("__keys");
 
     if (keysEntry == null) {
       throw new IOException("Required \"__keys\" file not found");
