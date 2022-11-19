@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 
 /**
@@ -35,7 +36,7 @@ public final class PlotBundle {
   public String commandsWritingDataTo(File dataDirectory) throws IOException {
     final Map<DatafileReference, File> refsToFiles = Maps.newHashMap();
     for (final DatafileReference datafileReference : datafileReferences) {
-      final File randomFile = File.createTempFile("plotBundle", ".dat", dataDirectory);
+      final File randomFile = Files.createTempFile(dataDirectory.toPath(), "plotBundle", ".dat").toFile();
       randomFile.deleteOnExit();
       refsToFiles.put(datafileReference, randomFile);
       Files.asCharSink(randomFile, Charsets.UTF_8).write(datafileReference.data);
