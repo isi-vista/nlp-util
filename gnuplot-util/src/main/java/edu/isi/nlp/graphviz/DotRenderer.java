@@ -19,6 +19,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.file.Files;
 import javax.inject.Inject;
 import javax.inject.Qualifier;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public final class DotRenderer {
   }
 
   public void renderToFile(Graph graph, File outputFile) throws IOException, InterruptedException {
-    final File dotCommands = File.createTempFile("dotRenderer", ".dot");
+    final File dotCommands = Files.createTempFile("dotRenderer", ".dot").toFile();
     // dotCommands.deleteOnExit();;
     Files.asCharSink(dotCommands, Charsets.UTF_8).write(graph.toDot());
     renderToFile(dotCommands, outputFile);

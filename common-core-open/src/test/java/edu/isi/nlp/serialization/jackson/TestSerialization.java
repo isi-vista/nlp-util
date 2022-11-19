@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMultimap;
 import edu.isi.nlp.evaluation.FMeasureCounts;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ public class TestSerialization {
   public void testFMeasureCounts() throws IOException {
     final Map<String, FMeasureCounts> foo =
         ImmutableMap.of("Hello", FMeasureCounts.fromTPFPFN(1, 2, 3));
-    final File tmp = File.createTempFile("foo", "bar");
+    final File tmp = Files.createTempFile("foo", "bar").toFile();
     tmp.deleteOnExit();
 
     assertEquals(foo, JacksonTestUtils.roundTripThroughSerializer(foo, serializer));
